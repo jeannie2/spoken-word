@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!--?-->
+    <title>spoken-word</title>
+
+    <style>
+    
+    :root {
+      --hogwarts: 0px;
+    }
+
+    body {
+      height:100%;
+      overflow:hidden; /*/no scroll */
+    }
+
+    .cape {
+      display:inline-block !important;
+      position: absolute;/*absolute;/*relative;/*absolute;/*originally: fixed;/*relative;/*fixed; /*absolute;*/
+      border-radius: 50%;
+      font-size: 13px;/* 15 */
+      line-height: 83px;/* 95 50 */
+      text-align:center;
+      border: 4px solid white;
+      background:black;
+      color:white;
+      animation: rotation 0.15s infinite linear;
+    }
+
+    @keyframes rotation {
+      0% {
+        transform:rotate(0deg);
+      }
+      
+      25% {
+        transform: rotate(-30deg);
+      }
+      
+      50% {
+        transform: rotate(0deg);
+      }
+      
+      75% {
+        transform: rotate(30deg);
+      }
+      
+      100% {
+        transform: rotate(0deg);
+      }
+    }
+
+    .riddler {
+      --left: 0px;
+      --top: 0px;
+      --curryleft: 0px;
+      --currytop: 0px;
+      /*--currybottom: 0px;*/
+    }
+
+    .goat {
+        animation: lamp 2s forwards linear;
+    }
+
+    @keyframes lamp {
+      100% {
+        left:var(--left);
+        top:var(--top);
+      }
+    
+      /*why working?
+      100% {
+          left:0px; //works with relative
+          top:300px;
+          }
+      */
+    };
+    </style>
+  </head>
+  <body>
+  
+  <script>
+  var poemArray1 = ["the", "lamp", "once", "out", "cool", "stars", "enter", "the", "window", "frame"];
+  var poemArray2 = ["The", "lamp", "once", "out", "Cool", "stars", "enter", "The", "window", "frame."];
+  var poemArray3 = ["the", "lamp", "once", "out", "cool", "stars", "enter", "the", "window", "frame"];
+
+  //have to speak in order 
+  //audio QQ
+  //stops shaking QQ
+  //need arrays if discs match text? QQ
+  //another way totalwordsspoken
+  //textcontent vs innertext 
+
+  var transcriptNoSpaces;
+  var arrayOfElements; //= [];
+  var totalWordsSpoken = 0;
+  var discs = document.getElementsByClassName("cape");
+  var l = 0;
+  var t = 0;
+  //var sound = document.getElementById("sound");  
+  //var audios = document.getElementsByClassName(".whip"); var audios = document.querySelectorAll("audio");
+  //var q = 1000;
+
+  var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition
+  var SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList
+  var SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEvent
+
+  var grammar = '#JSGF V1.0; grammar spokenwords; public <spokenword> = the | lamp | once | out | cool | stars | enter | window | frame;' //no The
+
+  var recognition = new SpeechRecognition();
+  var speechRecognitionList = new SpeechGrammarList();
+  speechRecognitionList.addFromString(grammar, 1);
+  recognition.grammars = speechRecognitionList;
+
+  recognition.continuous = false;
+  recognition.lang = 'en-US';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  recognition.onresult = function(event) {
+    var spokenTranscript = event.results[0][0].transcript; 
+    console.log("spokenTranscript: " + spokenTranscript)
+    console.log('Confidence: ' + event.results[0][0].confidence);
+    testMeat(spokenTranscript); 
+  }
+
+  recognition.onspeechend = function() {
+    recognition.stop();
+  }
+
+  recognition.onnomatch = function(event) {
+    console.log("I didn't recognise that word.");
+  }
+
+  recognition.onerror = function(event) {
+    console.log("error occured in recognition" + event.error);
+  } 
+
+  window.onclick = function() {
+    recognition.start();
+    console.log('Ready to receive a poem word.');
+  }
+
+  function randomLeft() {
+    var x = Math.floor(Math.random() * 401); //41 100 200
+    console.log("left in waterloo: " + x);
+    return x;
+  };
+
+  function createBubble() {  
+      var s = 0; //animationdelay
+      var w = 0; //poemarray2 index
+
+      for(var i = 0; i < 10; i++) {
+        var disc = document.createElement("div"); //ellipse
+        disc.classList.add("cape");
+        disc.style.height = "83px"; //95 50 70 
+        disc.style.width = "109px"; //125 80 100
+        disc.style.left = randomLeft() + "px";
+        console.log("disc getboundingclientrect.left: " + disc.getBoundingClientRect().left);
+        disc.style.top = "87%";//76 92 doesnt work well when resize browser
+        //disc.style.bottom = 0 -50px 265px
+        disc.setAttribute("id", "disc" + i);
+        console.log("disc ID: " + disc.id);
+        disc.innerText = poemArray2[w];
+        disc.style.animationDelay = s + "s";
+        disc.setAttribute("up", "false");
+        //disc.setAttribute("spokenWord", "false");
+        document.body.appendChild(disc);
+        s = s + 1;
+        console.log("w: " + w)
+        w++;
+      }
+  }
+    
+  function animateDisc(talkDisc) {
+    talkDisc.addEventListener('animationend', () => {
+    console.log("animation ended");
+  })
+    //if((talkDisc.getAttribute("up")) === "false") { //redundant
+    //console.log("index of spoken element: " + poemArray2.indexOf(talkDisc.innerText)); //always 0. redundant?
+    if (talkDisc.id === "disc0" && totalWordsSpoken === 0) {  
+      l = 20; //30
+      t = 30; 
+    } else if (talkDisc.id === "disc4" && totalWordsSpoken === 4) { 
+      l = 20; //repetition
+      t = 135; //170
+    } else if (talkDisc.id === "disc7" && totalWordsSpoken === 7) {
+  //poemArray.indexOf(talkDisc.innerText) === 7 && totalWordsSpoken === 7 no work (same word)). 
+      l = 20; 
+      t = 240; //240
+    } 
+    console.log("l: " + l);
+    console.log("t: " + t);
+
+    talkDisc.classList.add("goat", "riddler");
+    
+    talkDisc.style.setProperty('--left', l + "px");
+    console.log("e.target style left: " + talkDisc.style.left);
+    talkDisc.style.setProperty('--top', t + "px");
+    console.log("e.target style top: " + talkDisc.style.top);
+    //root.style.setProperty('--left', l + "px");
+
+    talkDisc.setAttribute("up", "true"); //true before reaches top
+    //setTimeout(function(){talkDisc.setAttribute("up", "true") }, 5000);   
+    l = l + 125; //140 l+90
+    return l;
+  //} 
+  }
+
+
+  function testMeat(spokenTranscript) { 
+    var noPunctuationDisc;
+    var unformattedDisc;
+
+    transcriptNoSpaces = spokenTranscript.split(" ");
+    console.log(transcriptNoSpaces);
+    
+  //check word in poem
+  for(var i = 0; i < transcriptNoSpaces.length; i++) {
+    console.log("word: " + transcriptNoSpaces[i]);
+    if(poemArray1.indexOf(transcriptNoSpaces[i]) !== -1) { 
+      arrayOfElements = [];
+      console.log("within poem");
+      
+      let index = poemArray3.indexOf(transcriptNoSpaces[i]);
+      console.log("index: " + index);
+      console.log("transcriptNoSpaces[i]: " + "i: " + i + " " + transcriptNoSpaces[i]);
+      
+      if(index !== -1) {
+      /* poemArray3.splice(index, 1); 
+        console.log("spliced poemArray3");
+        
+        console.log("poemArray2 length: " + poemArray2.length + " poemArray3 length: " + poemArray3.length); 
+        totalWordsSpoken = (poemArray2.length - poemArray3.length);
+        console.log("totalWordsSpoken: " + totalWordsSpoken); 
+      */
+        
+        //search for div contain spokenword
+        for(var y = 0; y < discs.length; y++) { 
+          
+          noPunctuationDisc = discs[y].innerText.replace(/[.]/g,"");//(/[,?.—]/g,"")
+          unformattedDisc = noPunctuationDisc.toLowerCase();
+          console.log("unformattedDisc: " + unformattedDisc);
+          
+          if(unformattedDisc === transcriptNoSpaces[i]) { 
+            arrayOfElements.push(discs[y]);
+            console.log("arrayOfElements: " + arrayOfElements);
+          }
+        }        
+        console.log("arrayOfElements length: " + arrayOfElements.length);
+        if(arrayOfElements.length > 1) {
+          console.log("arrayofElements is longer than 1");
+          
+          for(var p = 0; p < arrayOfElements.length; p++) {  //if use "i", word at index 8 not processed
+            console.log("arrayOfElements[p].up: " + " p: " + p + " " + (arrayOfElements[p].getAttribute("up")));
+            if(arrayOfElements[p].getAttribute("up") === "false") {
+              console.log("wonderwoman");
+              console.log(arrayOfElements[p]); //logs as false then true. by time log, has already processed? 
+              console.log(arrayOfElements[p].id);
+              var talkDisc = arrayOfElements[p]; //only the first element with up false
+              console.log("talkDisc : " + talkDisc);
+                      
+              //talkDisc.setAttribute("up", "true"); no works. logs as false but after wonderwoman is true ?
+              animateDisc(talkDisc); //dont know why work. only find that word. if "the" at least one would be false. QQ  
+                //works because havent called animateDisc on the disc yet (in which set to true)
+              break;
+            } 
+            } 
+        } else if (arrayOfElements.length === 1) {
+          console.log("arrayOfElements length is 1")
+          console.log("arrayOfElements[0].up: " + (arrayOfElements[0].getAttribute("up")));
+          console.log(arrayOfElements[0]);
+          console.log(arrayOfElements[0].id);
+          var talkDisc = arrayOfElements[0];
+          console.log("talkDisc : " + talkDisc);
+          animateDisc(talkDisc);
+        } 
+        poemArray3.splice(index, 1);
+        console.log("spliced poemArray3");
+        
+      } else if (index === -1) {
+        console.log("spoken already");
+      }
+        console.log("poemArray3: " + poemArray3);
+        console.log("poemArray2 length: " + poemArray2.length + " poemArray3 length: " + poemArray3.length); 
+        totalWordsSpoken = (poemArray2.length - poemArray3.length);
+        console.log("totalWordsSpoken: " + totalWordsSpoken);
+      
+    } else { //if spoken word not in poem 
+      console.log("outside poem");
+      return;
+    }
+  }
+  }
+
+  window.onload = createBubble(); 
+
+/* harlem langston hughes
+var poemArray1A = ["what", "happens", "to", "a", "dream", "deferred", "does", "it", "dry", "up", "like", "a", "raisin", "in", "the", "sun", "or", "fester", "like", "a", "sore", "and", "then", "run" ,"does", "it", "stink", "like", "rotten", "meat", "or", "crust", "and", "sugar", "over", "like", "a", "syrupy", "sweet", "maybe", "it", "just", "sags", "like", "a", "heavy", "load", "or", "does" ,"it" ,"explode"];
+var poemArray2A = ["What", "happens", "to", "a", "dream", "deferred?", "Does", "it", "dry", "up", "like", "a", "raisin", "in", "the", "sun?", "Or", "fester", "like", "a", "sore—", "And", "then", "run?" ,"Does", "it", "stink", "like", "rotten", "meat?", "Or", "crust", "and", "sugar", "over—", "like", "a", "syrupy", "sweet?", "Maybe", "it", "just", "sags", "like", "a", "heavy", "load.", "Or", "does" ,"it" ,"explode?"];
+var poemArray3A = ["What", "happens", "to", "a", "dream", "deferred?", "Does", "it", "dry", "up", "like", "a", "raisin", "in", "the", "sun?", "Or", "fester", "like", "a", "sore—", "And", "then", "run?" ,"Does", "it", "stink", "like", "rotten", "meat?", "Or", "crust", "and", "sugar", "over—", "like", "a", "syrupy", "sweet?", "Maybe", "it", "just", "sags", "like", "a", "heavy", "load.", "Or", "does" ,"it" ,"explode?"];
+*/
+
+
+  /* harlem langston hughes
+  var poemArray1A = ["what", "happens", "to", "a", "dream", "deferred", "does", "it", "dry", "up", "like", "a", "raisin", "in", "the", "sun", "or", "fester", "like", "a", "sore", "and", "then", "run" ,"does", "it", "stink", "like", "rotten", "meat", "or", "crust", "and", "sugar", "over", "like", "a", "syrupy", "sweet", "maybe", "it", "just", "sags", "like", "a", "heavy", "load", "or", "does" ,"it" ,"explode"];
+  var poemArray2A = ["What", "happens", "to", "a", "dream", "deferred?", "Does", "it", "dry", "up", "like", "a", "raisin", "in", "the", "sun?", "Or", "fester", "like", "a", "sore—", "And", "then", "run?" ,"Does", "it", "stink", "like", "rotten", "meat?", "Or", "crust", "and", "sugar", "over—", "like", "a", "syrupy", "sweet?", "Maybe", "it", "just", "sags", "like", "a", "heavy", "load.", "Or", "does" ,"it" ,"explode?"];
+  var poemArray3A = ["What", "happens", "to", "a", "dream", "deferred?", "Does", "it", "dry", "up", "like", "a", "raisin", "in", "the", "sun?", "Or", "fester", "like", "a", "sore—", "And", "then", "run?" ,"Does", "it", "stink", "like", "rotten", "meat?", "Or", "crust", "and", "sugar", "over—", "like", "a", "syrupy", "sweet?", "Maybe", "it", "just", "sags", "like", "a", "heavy", "load.", "Or", "does" ,"it" ,"explode?"];
+  */
+
+
+  </script>
+
+  </body>
+</html>
+
+<!--
+Reference:
+https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API/Using_the_Web_Speech_API 
+https://www.poetry-chaikhana.com/blog/2014/01/10/natsume-soseki-the-lamp-once-out-2/
+stackoverflow
+possibly others
+--->
