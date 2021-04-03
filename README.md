@@ -17,4 +17,4 @@ The window frame <br/>
 https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API/Using_the_Web_Speech_API <br/>
 https://www.poetry-chaikhana.com/blog/2014/01/10/natsume-soseki-the-lamp-once-out-2/ <br/>
 stackoverflow <br/>
-possibly others.    
+possibly others
