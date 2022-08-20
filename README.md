@@ -6,7 +6,7 @@ Simple project using speech-to-text
 This project was made using HTML, CSS, JavaScript, the Web Speech API
 
 ## How to use
-Press spacebar and speak the poem
+Press spacebar and speak the poem. Speak clearly and say the poem in one go, do not pause.
 
 The lamp once out by Natsume Soseki <br/>
 The lamp once out <br/>
